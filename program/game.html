@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Jeu en cours</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .info-panel {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: left;
+            display: none;
+        }
+        .info-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        .info-line:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .info-label { color: #aaa; font-size: 0.9rem; }
+        .info-value { font-weight: bold; font-family: monospace; font-size: 1.1rem; }
+        
+        #display-id { color: var(--accent); }
+        #display-ip { color: var(--primary); }
+        #display-port { color: #ff9d00; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="javascript:quit()">← Quitter</a>
+        <span id="game-info" style="align-self: center; color: var(--primary);"></span>
+    </nav>
+
+    <div class="container" style="margin-top: 20px;">
+        <h2 id="status">Chargement...</h2>
+        
+        <div id="online-info-box" class="info-panel">
+            
+            <div class="info-line">
+                <div>
+                    <span class="info-label">ID PARTIE :</span>
+                    <span id="display-id" class="info-value">...</span>
+                </div>
+                <button class="copy-btn small" onclick="copyText('display-id')">Copier</button>
+            </div>
+
+            <div class="info-line">
+                <div>
+                    <span class="info-label">IP DU SERVEUR :</span>
+                    <span id="display-ip" class="info-value">Chargement...</span>
+                </div>
+                <button class="copy-btn small" onclick="copyText('display-ip')">Copier</button>
+            </div>
+
+            <div class="info-line">
+                <div>
+                    <span class="info-label">PORT :</span>
+                    <span id="display-port" class="info-value">...</span>
+                </div>
+                <button class="copy-btn small" onclick="copyText('display-port')">Copier</button>
+            </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <button id="restart-btn" class="btn-menu" style="display:none; border-color: var(--accent); margin-top: 30px;" onclick="restart()">REJOUER</button>
+    </div>
+
+    <script src="logic.js"></script>
+    <script>
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector(`button[onclick="copyText('${elementId}')"]`);
+                const originalText = btn.innerText;
+                btn.innerText = "Copié !";
+                setTimeout(() => btn.innerText = originalText, 1500);
+            }).catch(err => {
+                alert("Erreur copie : " + err);
+            });
+        }
+    </script>
+</body>
+</html>

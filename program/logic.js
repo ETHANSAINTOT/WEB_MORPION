@@ -50,11 +50,19 @@ function setupLocalOrAI() {
     if (mode === 'ai' && currentPlayer === 'O') setTimeout(aiPlay, 800);
 }
 
-function setupOnline() {
+async function setupOnline() {
     myOnlineSymbol = (role === 'creator') ? 'X' : 'O';
-    document.getElementById('online-id-box').style.display = 'block';
+    document.getElementById('online-info-box').style.display = 'block';
     document.getElementById('display-id').innerText = onlineId;
-    
+    try {
+        const res = await fetch(`${API_URL}?action=server_info`);
+        const data = await res.json();
+        document.getElementById('display-ip').innerText = data.ip || 'Inconnue';
+        document.getElementById('display-port').innerText = data.port || 'Auto';
+    } catch (e) {
+        console.error("Impossible de récupérer les infos serveur");
+        document.getElementById('display-ip').innerText = "?";
+    }
     if (!window.pollingInterval) {
         window.pollingInterval = setInterval(checkOnlineState, 1000);
     }
