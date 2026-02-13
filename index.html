@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Morpion - Menu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>MORPION</h1>
+        
+        <a href="local.html" class="btn-menu">Local</a>
+        <a href="ai.html" class="btn-menu">Contre l'IA</a>
+        <a href="online.html" class="btn-menu">En Ligne</a>
+
+        <br><br>
+        <button onclick="openServerModal()" class="btn-menu" style="border-color: #777; color: #aaa; font-size: 1rem;">
+            ⚙️ PROPRIÉTÉS SERVEUR
+        </button>
+    </div>
+
+    <div id="serverModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="margin-bottom: 20px; color: white;">Info Serveur</h2>
+            
+            <div class="info-row">
+                <span>IP Locale :</span>
+                <div>
+                    <strong id="server-ip" style="color:var(--accent)">Chargement...</strong>
+                    <button class="copy-btn" onclick="copyText('server-ip')">Copier</button>
+                </div>
+            </div>
+
+            <div class="info-row">
+                <span>Port :</span>
+                <div>
+                    <strong id="server-port" style="color:var(--primary)">...</strong>
+                    <button class="copy-btn" onclick="copyText('server-port')">Copier</button>
+                </div>
+            </div>
+
+            <br>
+            <button onclick="stopServer()" class="btn-menu" style="border-color: var(--secondary); color: var(--secondary); font-size: 1rem; padding: 10px;">
+                ⚠️ ARRÊTER LE SERVEUR
+            </button>
+            <br>
+            <button onclick="closeServerModal()" style="background:none; border:none; color:#777; cursor:pointer; text-decoration:underline;">Fermer</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'api.php';
+
+        async function openServerModal() {
+            document.getElementById('serverModal').classList.add('active');
+            try {
+                const res = await fetch(`${API_URL}?action=server_info`);
+                const data = await res.json();
+                document.getElementById('server-ip').innerText = data.ip || 'Inconnue';
+                document.getElementById('server-port').innerText = data.port || '7498';
+            } catch (e) {
+                document.getElementById('server-ip').innerText = 'Erreur';
+            }
+        }
+
+        function closeServerModal() {
+            document.getElementById('serverModal').classList.remove('active');
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copié !');
+            });
+        }
+
+        function stopServer() {
+            if(confirm("Cela va couper la connexion. Continuer ?")) {
+                fetch(`${API_URL}?action=stop`);
+                document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:20%'>Serveur éteint.</h1>";
+                setTimeout(() => window.close(), 1000);
+            }
+        }
+    </script>
+</body>
+</html>
