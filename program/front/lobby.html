@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Salle d'attente</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="online.html">Quitter</a>
+    </nav>
+    <div class="container">
+        <h2>Salle d'attente</h2>
+        <div id="connection-info" style="margin-bottom: 30px;">
+            <div class="info-row">
+                <span>ID Partie :</span>
+                <strong id="disp-id" style="color:var(--primary)">...</strong>
+            </div>
+            <div class="info-row">
+                <span>IP Serveur :</span>
+                <strong id="disp-ip">...</strong>
+            </div>
+            <div class="info-row">
+                <span>Port :</span>
+                <strong id="disp-port">...</strong>
+            </div>
+        </div>
+        <div class="player-card connected">
+            <h3>Joueur 1 (X)</h3>
+            <p>Connecte (Createur)</p>
+        </div>
+        <div id="p2-status" class="player-card">
+            <h3>Joueur 2 (O)</h3>
+            <p id="p2-text">En attente de connexion...</p>
+        </div>
+        <div id="config-area" class="hidden" style="margin-top: 30px; border-top: 1px solid #555; padding-top: 20px;">
+            <h3>Qui commence ?</h3>
+            <div class="selection-group">
+                <button class="select-btn text-btn" id="btn-x" onclick="setStart('X')">X</button>
+                <button class="select-btn text-btn" id="btn-o" onclick="setStart('O')">O</button>
+            </div>
+            <p id="wait-msg" class="hidden" style="color:#aaa">En attente du createur...</p>
+            <button id="start-btn" onclick="launchGame()" class="btn-menu hidden" style="border-color: var(--accent); color: var(--accent);">JOUER</button>
+        </div>
+    </div>
+    <script>
+        const API_URL = '../back/api.php';
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const role = params.get('role');
+        document.getElementById('disp-id').innerText = id;
+        fetch(`${API_URL}?action=server_info`).then(r=>r.json()).then(d=>{
+            document.getElementById('disp-ip').innerText = d.ip;
+            document.getElementById('disp-port').innerText = d.port;
+        });
+        setInterval(async () => {
+            const res = await fetch(`${API_URL}?action=poll_lobby&id=${id}`);
+            const data = await res.json();
+            if(data.p2_connected) {
+                document.getElementById('p2-status').classList.add('connected');
+                document.getElementById('p2-text').innerText = "Connecte !";
+                document.getElementById('config-area').classList.remove('hidden');
+            }
+            document.getElementById('btn-x').classList.toggle('selected', data.turn === 'X');
+            document.getElementById('btn-o').classList.toggle('selected', data.turn === 'O');
+            if(role === 'creator') {
+                document.getElementById('start-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('wait-msg').classList.remove('hidden');
+                document.getElementById('btn-x').disabled = true;
+                document.getElementById('btn-o').disabled = true;
+            }
+            if(data.status === 'playing') {
+                window.location.href = `game.html?mode=online&id=${id}&role=${role}`;
+            }
+        }, 1000);
+        async function setStart(who) {
+            if(role !== 'creator') return;
+            await fetch(`${API_URL}?action=update_settings&id=${id}`, {
+                method: 'POST', body: JSON.stringify({start: who})
+            });
+        }
+        async function launchGame() {
+            await fetch(`${API_URL}?action=start_match&id=${id}`);
+        }
+    </script>
+</body>
+</html>

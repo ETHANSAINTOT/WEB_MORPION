@@ -7,10 +7,9 @@
 </head>
 <body>
     <nav>
-        <a href="javascript:history.back()">← Retour</a>
+        <a href="javascript:history.back()">Retour</a>
         <a href="index.html">Menu</a>
     </nav>
-
     <div class="container">
         <h2>Niveau de l'IA</h2>
         <div class="selection-group">
@@ -19,33 +18,27 @@
             <button class="select-btn text-btn" onclick="setLevel('hard', this)">Difficile</button>
             <button class="select-btn text-btn" onclick="setLevel('cheat', this)" style="border-color:var(--secondary)">Triche</button>
         </div>
-
         <h2>Qui commence ?</h2>
         <div class="selection-group">
-            <button class="select-btn start-btn" onclick="setStart('X', this)">X</button>
-            <button class="select-btn start-btn" onclick="setStart('O', this)">O</button>
-            <button class="select-btn start-btn selected" onclick="setStart('random', this)">?</button>
+            <button class="select-btn text-btn" onclick="setStart('human', this)">Joueur</button>
+            <button class="select-btn text-btn" onclick="setStart('ai', this)">L'IA</button>
+            <button class="select-btn text-btn selected" onclick="setStart('random', this)">Hasard</button>
         </div>
-
         <button onclick="launchGame()" class="btn-menu" style="border-color: var(--accent); color: var(--accent);">JOUER</button>
     </div>
-
     <script>
         let level = 'random';
         let start = 'random';
-
         function setLevel(val, btn) {
             level = val;
-            document.querySelectorAll('.text-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.selection-group:first-of-type .text-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
         }
-
         function setStart(val, btn) {
             start = val;
-            document.querySelectorAll('.start-btn').forEach(b => b.classList.remove('selected'));
+            document.querySelectorAll('.selection-group:last-of-type .text-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
         }
-
         function launchGame() {
             window.location.href = `game.html?mode=ai&level=${level}&start=${start}`;
         }

@@ -7,21 +7,18 @@
 </head>
 <body>
     <nav>
-        <a href="javascript:history.back()">← Retour</a>
+        <a href="javascript:history.back()">Retour</a>
         <a href="index.html">Menu</a>
     </nav>
-
     <div class="container">
         <h2>Qui commence ?</h2>
-        <div class="selection-group" id="starter-select">
+        <div class="selection-group">
             <button class="select-btn" onclick="selectStart('X', this)">X</button>
             <button class="select-btn" onclick="selectStart('O', this)">O</button>
             <button class="select-btn selected" onclick="selectStart('random', this)">?</button>
         </div>
-
         <button onclick="launchGame()" class="btn-menu" style="border-color: var(--accent); color: var(--accent);">COMMENCER</button>
     </div>
-
     <script>
         let selectedStart = 'random';
         function selectStart(val, btn) {

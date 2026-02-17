@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>En Ligne</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <a href="javascript:history.back()">Retour</a>
+        <a href="index.html">Menu</a>
+    </nav>
+
+    <div class="container">
+        <div style="border-bottom: 1px solid #444; padding-bottom: 30px; margin-bottom: 30px;" class="center-column">
+            <h2>Créer une partie</h2>
+            
+            <input type="text" id="customId" placeholder="ID Perso (Optionnel)" style="border-color: var(--primary);">
+            
+            <button onclick="createLobby()" class="btn-menu">CRÉER</button>
+        </div>
+
+        <div class="center-column">
+            <h2>Rejoindre</h2>
+            <input type="text" id="joinId" placeholder="Entrer l'ID ici">
+            <button onclick="joinLobby()" class="btn-menu" style="width: auto; padding: 10px 40px;">REJOINDRE</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '../back/api.php'; 
+
+        async function createLobby() {
+            const customId = document.getElementById('customId').value;
+            let url = `${API_URL}?action=create`;
+            
+            // Si un ID est écrit, on l'ajoute à l'URL
+            if(customId) {
+                url += `&custom_id=${encodeURIComponent(customId)}`;
+            }
+
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (data.error) {
+                alert("Erreur : " + data.error);
+            } else {
+                window.location.href = `lobby.html?role=creator&id=${data.id}`;
+            }
+        }
+
+        async function joinLobby() {
+            const id = document.getElementById('joinId').value;
+            if(!id) return alert("Il faut un ID !");
+            
+            const res = await fetch(`${API_URL}?action=join&id=${id}`);
+            const data = await res.json();
+            
+            if(data.status === 'joined') {
+                window.location.href = `lobby.html?role=joiner&id=${id}`;
+            } else {
+                alert("Impossible de rejoindre (ID invalide ou partie pleine)");
+            }
+        }
+    </script>
+</body>
+</html>
