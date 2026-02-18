@@ -1,5 +1,5 @@
 <?php
-// On désactive le cache
+// En-têtes pour éviter le cache
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
@@ -8,7 +8,7 @@ header("Access-Control-Allow-Origin: *");
 
 $file = 'games_data.json';
 
-// Fonction lecture sécurisée
+// --- FONCTIONS UTILITAIRES ---
 function getGameData($file) {
     clearstatcache();
     if (!file_exists($file)) return [];
@@ -18,7 +18,6 @@ function getGameData($file) {
     return is_array($data) ? $data : [];
 }
 
-// Fonction écriture sécurisée
 function saveGameData($file, $data) {
     file_put_contents($file, json_encode($data), LOCK_EX);
     clearstatcache();
@@ -27,10 +26,29 @@ function saveGameData($file, $data) {
 $action = $_GET['action'] ?? '';
 $gameId = $_GET['id'] ?? '';
 
-// --- INFO SERVEUR ---
+// --- ACTIONS ---
+
 if ($action === 'server_info') {
-    $ip = trim(shell_exec("hostname -I | awk '{print $1}'"));
-    if (empty($ip)) $ip = getHostByName(getHostName());
+    $ip = '';
+    
+    // Détection de l'OS pour récupérer la bonne IP
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+        // Méthode Windows : on lit ipconfig
+        $out = [];
+        exec("ipconfig", $out);
+        foreach ($out as $line) {
+            // On cherche une ligne avec IPv4
+            if (preg_match('/IPv4.*:\s*([0-9\.]+)/', $line, $matches)) {
+                $ip = $matches[1];
+                break; // On prend la première trouvée
+            }
+        }
+        if (empty($ip)) $ip = getHostByName(getHostName());
+    } else {
+        // Méthode Linux
+        $ip = trim(shell_exec("hostname -I | awk '{print $1}'"));
+    }
+
     $port = $_SERVER['SERVER_PORT'];
     echo json_encode(['ip' => $ip, 'port' => $port]);
     exit;
@@ -43,7 +61,12 @@ if ($action === 'stop') {
     exit;
 }
 
-// --- CREATE ---
+// ... (Le reste du fichier reste identique à ma réponse précédente) ...
+// Pour éviter de copier-coller tout le bloc, garde tes fonctions create, join, poll_lobby, etc.
+// Assure-toi juste que le bloc 'server_info' ci-dessus remplace l'ancien.
+// Si tu as un doute, remets tout le fichier api.php de la réponse précédente 
+// mais REMPLACE JUSTE le bloc "if ($action === 'server_info')" par celui-ci.
+
 if ($action === 'create') {
     $data = getGameData($file);
     $customId = preg_replace("/[^a-zA-Z0-9]/", "", $_GET['custom_id'] ?? '');
@@ -67,7 +90,6 @@ if ($action === 'create') {
     exit;
 }
 
-// --- JOIN ---
 if ($action === 'join') {
     $data = getGameData($file);
     if (isset($data[$gameId])) {
@@ -81,7 +103,6 @@ if ($action === 'join') {
     exit;
 }
 
-// --- POLL LOBBY ---
 if ($action === 'poll_lobby') {
     $data = getGameData($file);
     if(isset($data[$gameId])) {
@@ -94,7 +115,6 @@ if ($action === 'poll_lobby') {
     exit;
 }
 
-// --- UPDATE SETTINGS ---
 if ($action === 'update_settings') {
     $data = getGameData($file);
     if(isset($data[$gameId])) {
@@ -108,7 +128,6 @@ if ($action === 'update_settings') {
     exit;
 }
 
-// --- START MATCH ---
 if ($action === 'start_match') {
     $data = getGameData($file);
     if(isset($data[$gameId])) {
@@ -119,7 +138,6 @@ if ($action === 'start_match') {
     exit;
 }
 
-// --- STATE ---
 if ($action === 'state') {
     $data = getGameData($file);
     if(isset($data[$gameId])) echo json_encode($data[$gameId]);
@@ -127,7 +145,6 @@ if ($action === 'state') {
     exit;
 }
 
-// --- MOVE ---
 if ($action === 'move') {
     $input = json_decode(file_get_contents('php://input'), true);
     $index = $input['index'];
@@ -153,7 +170,6 @@ if ($action === 'move') {
     exit;
 }
 
-// --- RESTART ---
 if ($action === 'restart') {
     $data = getGameData($file);
     if(isset($data[$gameId])) {

@@ -1,4 +1,6 @@
 @echo off
+:: Cette ligne force l'encodage UTF-8 pour avoir les jolis cadres
+chcp 65001 >nul
 title SERVEUR MORPION ULTIMATE
 color 0B
 cls
